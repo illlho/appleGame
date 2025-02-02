@@ -113,6 +113,7 @@
             let scoreDisplay = document.getElementById('score')
             let timeDisplay = document.getElementById('time')
             let score = 0
+            let gameActive = true
             let time = 30
             let selectedApples = []
             let isMouseDown = false
@@ -169,6 +170,7 @@
             }
 
             function selectApple(apple) {
+                if (!gameActive) return
                 if (!selectedApples.includes(apple)) {
                     apple.classList.add('selected')
                     selectedApples.push(apple)
@@ -221,6 +223,7 @@
                         timeDisplay.textContent = time
                     } else {
                         clearInterval(timer)
+                        gameActive = false
                         alert('게임 종료! 최종 점수: ' + score)
                     }
                 }, 1000)
