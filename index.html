@@ -7,7 +7,7 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
         <style>
             :root {
-                --aspect-ratio: 2; /* 가로 대비 세로 비율 */
+                --aspect-ratio: 9 / 16;
                 --cols: 10;
                 --rows: 20;
             }
@@ -126,17 +126,16 @@
                     checkMatch()
                 }
 
-                // 모바일 터치 이벤트 대응
                 apple.ontouchstart = (e) => {
-                    e.preventDefault() // 스크롤 방지
+                    e.preventDefault()
                     isMouseDown = true
                     selectApple(apple)
                 }
                 apple.ontouchmove = (e) => {
-                    e.preventDefault() // 스크롤 방지
+                    e.preventDefault()
                     let touch = e.touches[0]
                     let target = document.elementFromPoint(touch.clientX, touch.clientY)
-                    if (target && target.classList.contains('apple')) {
+                    if (target && target.classList.contains('apple') && !selectedApples.includes(target)) {
                         selectApple(target)
                     }
                 }
@@ -155,19 +154,37 @@
                 }
             }
 
+            function applySpecialEffect(apple) {
+                let apples = document.querySelectorAll('.apple')
+                let index = Array.from(apples).indexOf(apple)
+                let row = Math.floor(index / COLS)
+                let col = index % COLS
+
+                for (let r = row - 1; r <= row + 1; r++) {
+                    for (let c = col - 1; c <= col + 1; c++) {
+                        if (r >= 0 && r < ROWS && c >= 0 && c < COLS) {
+                            let neighborIndex = r * COLS + c
+                            let neighborApple = apples[neighborIndex]
+                            if (neighborApple && !neighborApple.classList.contains('hidden')) {
+                                neighborApple.textContent = getRandomNumber()
+                            }
+                        }
+                    }
+                }
+                apple.classList.add('hidden')
+                selectedApples = selectedApples.filter((a) => a !== apple) // 선택 리스트에서도 제거
+            }
+
             function checkMatch() {
                 let sum = selectedApples.reduce((acc, apple) => acc + parseInt(apple.textContent), 0)
 
-                selectedApples.forEach((apple) => {
-                    if (sum === 10) {
+                if (sum === 10) {
+                    selectedApples.forEach((apple) => {
                         if (apple.classList.contains('special')) {
                             applySpecialEffect(apple)
                         }
                         apple.classList.add('hidden')
-                    }
-                })
-
-                if (sum === 10) {
+                    })
                     score += 10
                     scoreDisplay.textContent = `점수: ${score}`
                 }
@@ -180,16 +197,6 @@
                 for (let i = 0; i < ROWS * COLS; i++) {
                     createApple()
                 }
-
-                let timer = setInterval(() => {
-                    time--
-                    timeDisplay.textContent = time
-
-                    if (time <= 0) {
-                        clearInterval(timer)
-                        alert('게임 종료! 최종 점수: ' + score)
-                    }
-                }, 1000)
             }
 
             document.body.onmouseup = () => {
