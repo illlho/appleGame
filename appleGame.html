@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>사과 숫자 게임</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                text-align: center;
+                user-select: none;
+                cursor: crosshair;
+            }
+            #game-board {
+                display: grid;
+                grid-template-columns: repeat(20, 40px);
+                gap: 5px;
+                justify-content: center;
+            }
+            .apple {
+                width: 40px;
+                height: 40px;
+                background: red;
+                color: white;
+                font-size: 16px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                border: 2px solid transparent;
+            }
+            .special {
+                background: gold;
+            }
+            .selected {
+                border: 2px solid blue;
+                background-color: lightblue;
+            }
+            .hidden {
+                visibility: hidden;
+            }
+            #score,
+            #timer {
+                font-size: 20px;
+                margin: 10px;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>사과 숫자 게임</h1>
+        <div id="score">점수: 0</div>
+        <div id="timer">남은 시간: <span id="time">60</span>초</div>
+        <div id="game-board"></div>
+        <script>
+            let board = document.getElementById('game-board')
+            let scoreDisplay = document.getElementById('score')
+            let timeDisplay = document.getElementById('time')
+            let score = 0
+            let time = 60
+            let selectedApples = []
+            let isMouseDown = false
+
+            function getRandomNumber() {
+                return Math.floor(Math.random() * 9) + 1
+            }
+            function getRandomSpecial() {
+                return Math.random() < 0.1
+            } // 5% 확률로 특수 사과 생성
+
+            function createApple() {
+                let apple = document.createElement('div')
+                let number = getRandomNumber()
+                apple.textContent = number
+                apple.classList.add('apple')
+
+                if (getRandomSpecial()) {
+                    apple.classList.add('special')
+                    apple.dataset.special = 'true'
+                }
+
+                apple.onmousedown = (e) => {
+                    isMouseDown = true
+                    selectApple(apple)
+                }
+                apple.onmouseenter = (e) => {
+                    if (isMouseDown) selectApple(apple)
+                }
+                apple.onmouseup = () => {
+                    isMouseDown = false
+                    checkMatch()
+                }
+
+                board.appendChild(apple)
+            }
+
+            function selectApple(apple) {
+                if (!selectedApples.includes(apple)) {
+                    apple.classList.add('selected')
+                    selectedApples.push(apple)
+                }
+            }
+
+            function checkMatch() {
+                let sum = selectedApples.reduce((acc, apple) => acc + parseInt(apple.textContent), 0)
+
+                selectedApples.forEach((apple) => {
+                    if (sum === 10) {
+                        if (apple.classList.contains('special')) {
+                            applySpecialEffect(apple)
+                        }
+                        apple.classList.add('hidden')
+                    }
+                })
+
+                if (sum === 10) {
+                    score += 10
+                    scoreDisplay.textContent = `점수: ${score}`
+                }
+
+                selectedApples.forEach((a) => a.classList.remove('selected'))
+                selectedApples = []
+            }
+
+            function applySpecialEffect(apple) {
+                let apples = document.querySelectorAll('.apple')
+                let index = Array.from(apples).indexOf(apple)
+                let row = Math.floor(index / 20)
+                let col = index % 20
+
+                for (let r = row - 1; r <= row + 1; r++) {
+                    for (let c = col - 1; c <= col + 1; c++) {
+                        if (r >= 0 && r < 10 && c >= 0 && c < 20) {
+                            let neighborIndex = r * 20 + c
+                            let neighborApple = apples[neighborIndex]
+                            if (neighborApple && !neighborApple.classList.contains('hidden')) {
+                                neighborApple.textContent = getRandomNumber()
+                            }
+                        }
+                    }
+                }
+            }
+
+            function startGame() {
+                for (let i = 0; i < 200; i++) {
+                    createApple()
+                }
+
+                let timer = setInterval(() => {
+                    time--
+                    timeDisplay.textContent = time
+
+                    if (time <= 0) {
+                        clearInterval(timer)
+                        alert('게임 종료! 최종 점수: ' + score)
+                    }
+                }, 1000)
+            }
+
+            document.body.onmouseup = () => {
+                isMouseDown = false
+                checkMatch()
+            }
+            startGame()
+        </script>
+    </body>
+</html>
