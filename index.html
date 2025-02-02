@@ -6,22 +6,48 @@
         <title>사과 숫자 게임</title>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
         <style>
+            :root {
+                --aspect-ratio: 2; /* 가로 대비 세로 비율 */
+                --cols: 10;
+                --rows: 20;
+            }
+
             body {
                 font-family: Arial, sans-serif;
                 text-align: center;
                 user-select: none;
                 cursor: crosshair;
+                margin: 0;
+                padding: 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                overflow: hidden;
             }
+
+            #game-container {
+                display: flex;
+                flex-direction: column;
+                width: 90vw;
+                max-width: 600px;
+                aspect-ratio: var(--aspect-ratio);
+                justify-content: center;
+                align-items: center;
+            }
+
             #game-board {
                 display: grid;
-                grid-template-columns: repeat(20, 40px);
+                grid-template-columns: repeat(var(--cols), min-content);
+                grid-template-rows: repeat(var(--rows), min-content);
                 gap: 5px;
-                justify-content: center;
+                flex-grow: 1;
             }
+
             .apple {
-                width: 40px;
-                height: 40px;
                 background: red;
+                width: 8vw;
+                height: 8vw;
                 color: white;
                 font-size: 16px;
                 border-radius: 50%;
@@ -41,6 +67,7 @@
             .hidden {
                 visibility: hidden;
             }
+
             #score,
             #timer {
                 font-size: 20px;
@@ -49,11 +76,18 @@
         </style>
     </head>
     <body>
-        <h1>사과 숫자 게임</h1>
-        <div id="score">점수: 0</div>
-        <div id="timer">남은 시간: <span id="time">60</span>초</div>
-        <div id="game-board"></div>
+        <div id="game-container">
+            <h1>사과 숫자 게임</h1>
+            <div id="score">점수: 0</div>
+            <div id="timer">남은 시간: <span id="time">60</span>초</div>
+            <div id="game-board"></div>
+        </div>
         <script>
+            const COLS = 8
+            const ROWS = 11
+            document.documentElement.style.setProperty('--cols', COLS)
+            document.documentElement.style.setProperty('--rows', ROWS)
+
             let board = document.getElementById('game-board')
             let scoreDisplay = document.getElementById('score')
             let timeDisplay = document.getElementById('time')
@@ -67,7 +101,7 @@
             }
             function getRandomSpecial() {
                 return Math.random() < 0.1
-            } // 5% 확률로 특수 사과 생성
+            }
 
             function createApple() {
                 let apple = document.createElement('div')
@@ -88,6 +122,25 @@
                     if (isMouseDown) selectApple(apple)
                 }
                 apple.onmouseup = () => {
+                    isMouseDown = false
+                    checkMatch()
+                }
+
+                // 모바일 터치 이벤트 대응
+                apple.ontouchstart = (e) => {
+                    e.preventDefault() // 스크롤 방지
+                    isMouseDown = true
+                    selectApple(apple)
+                }
+                apple.ontouchmove = (e) => {
+                    e.preventDefault() // 스크롤 방지
+                    let touch = e.touches[0]
+                    let target = document.elementFromPoint(touch.clientX, touch.clientY)
+                    if (target && target.classList.contains('apple')) {
+                        selectApple(target)
+                    }
+                }
+                apple.ontouchend = () => {
                     isMouseDown = false
                     checkMatch()
                 }
@@ -123,27 +176,8 @@
                 selectedApples = []
             }
 
-            function applySpecialEffect(apple) {
-                let apples = document.querySelectorAll('.apple')
-                let index = Array.from(apples).indexOf(apple)
-                let row = Math.floor(index / 20)
-                let col = index % 20
-
-                for (let r = row - 1; r <= row + 1; r++) {
-                    for (let c = col - 1; c <= col + 1; c++) {
-                        if (r >= 0 && r < 10 && c >= 0 && c < 20) {
-                            let neighborIndex = r * 20 + c
-                            let neighborApple = apples[neighborIndex]
-                            if (neighborApple && !neighborApple.classList.contains('hidden')) {
-                                neighborApple.textContent = getRandomNumber()
-                            }
-                        }
-                    }
-                }
-            }
-
             function startGame() {
-                for (let i = 0; i < 200; i++) {
+                for (let i = 0; i < ROWS * COLS; i++) {
                     createApple()
                 }
 
