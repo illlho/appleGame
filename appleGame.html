@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script src="https://cdn.tailwindcss.com"></script>
+        <script src="https://cdn.tailwindcss.com"></script>
         <title>사과 숫자 게임</title>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
         <style>
@@ -77,21 +77,21 @@
         </style>
     </head>
     <body>
-            <!-- Header -->
-    <header class="bg-white shadow-md py-4 fixed top-0 left-0 w-full text-center">
-        <a href="index.html" class="text-2xl font-bold text-gray-900 hover:text-blue-600 transition">ilho</a>   
-    </header>
+        <!-- Header -->
+        <header class="bg-white shadow-md py-4 fixed top-0 left-0 w-full text-center">
+            <a href="index.html" class="text-2xl font-bold text-gray-900 hover:text-blue-600 transition">ilho</a>
+        </header>
         <div id="game-container">
             <h1>사과 숫자 게임</h1>
             <div id="score">점수: 0</div>
             <div id="timer">남은 시간: <span id="time">30</span>초</div>
             <div id="game-board"></div>
-<button id="refreshButton"
-        class="px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md 
-               hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 
-               transition duration-200">
-        다시하기
-    </button>
+            <button
+                id="refreshButton"
+                class="px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 transition duration-200"
+            >
+                다시하기
+            </button>
         </div>
         <script>
             const COLS = 8
@@ -187,9 +187,9 @@
                 apple.classList.add('hidden1')
                 selectedApples = selectedApples.filter((a) => a !== apple) // 선택 리스트에서도 제거
             }
-        document.getElementById("refreshButton").addEventListener("click", function () {
-            location.reload();
-        });
+            document.getElementById('refreshButton').addEventListener('click', function () {
+                location.reload()
+            })
 
             function checkMatch() {
                 let sum = selectedApples.reduce((acc, apple) => acc + parseInt(apple.textContent), 0)
