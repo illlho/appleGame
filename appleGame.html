@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>사과 숫자 게임</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+        <style>
+            :root {
+                --aspect-ratio: 9 / 16;
+                --cols: 10;
+                --rows: 20;
+            }
+
+            body {
+                font-family: Arial, sans-serif;
+                text-align: center;
+                user-select: none;
+                cursor: crosshair;
+                margin: 0;
+                padding: 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                overflow: hidden;
+            }
+
+            #game-container {
+                display: flex;
+                flex-direction: column;
+                width: 90vw;
+                max-width: 600px;
+                aspect-ratio: var(--aspect-ratio);
+                justify-content: center;
+                align-items: center;
+            }
+
+            #game-board {
+                display: grid;
+                grid-template-columns: repeat(var(--cols), min-content);
+                grid-template-rows: repeat(var(--rows), min-content);
+                gap: 5px;
+                flex-grow: 1;
+            }
+
+            .apple {
+                background: red;
+                width: 8vw;
+                height: 8vw;
+                color: white;
+                font-size: 16px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                border: 2px solid transparent;
+            }
+            .special {
+                background: gold;
+            }
+            .selected {
+                border: 2px solid blue;
+                background-color: lightblue;
+            }
+            .hidden {
+                visibility: hidden;
+            }
+
+            #score,
+            #timer {
+                font-size: 20px;
+                margin: 10px;
+            }
+            #header {
+                position: absolute;
+                top: 10px;
+                left: 10px;
+                right: 10px;
+                display: flex;
+                justify-content: space-between;
+                font-size: 12px;
+                color: #ddd;
+                font-weight: bold;
+            }
+            #logo {
+                text-align: left;
+            }
+            #version {
+                text-align: right;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="header">
+            <span id="logo">ilho</span>
+            <span id="version">현재 버전 0.0.1</span>
+        </div>
+        <div id="game-container">
+            <h1>사과 숫자 게임</h1>
+            <div id="score">점수: 0</div>
+            <div id="timer">남은 시간: <span id="time">30</span>초</div>
+            <div id="game-board"></div>
+        </div>
+        <script>
+            const COLS = 8
+            const ROWS = 11
+            document.documentElement.style.setProperty('--cols', COLS)
+            document.documentElement.style.setProperty('--rows', ROWS)
+
+            let board = document.getElementById('game-board')
+            let scoreDisplay = document.getElementById('score')
+            let timeDisplay = document.getElementById('time')
+            let score = 0
+            let gameActive = true
+            let time = 30
+            let selectedApples = []
+            let isMouseDown = false
+
+            function getRandomNumber() {
+                return Math.floor(Math.random() * 9) + 1
+            }
+            function getRandomSpecial() {
+                return Math.random() < 0.1
+            }
+
+            function createApple() {
+                let apple = document.createElement('div')
+                let number = getRandomNumber()
+                apple.textContent = number
+                apple.classList.add('apple')
+
+                if (getRandomSpecial()) {
+                    apple.classList.add('special')
+                    apple.dataset.special = 'true'
+                }
+
+                apple.onmousedown = (e) => {
+                    isMouseDown = true
+                    selectApple(apple)
+                }
+                apple.onmouseenter = (e) => {
+                    if (isMouseDown) selectApple(apple)
+                }
+                apple.onmouseup = () => {
+                    isMouseDown = false
+                    checkMatch()
+                }
+
+                apple.ontouchstart = (e) => {
+                    e.preventDefault()
+                    isMouseDown = true
+                    selectApple(apple)
+                }
+                apple.ontouchmove = (e) => {
+                    e.preventDefault()
+                    let touch = e.touches[0]
+                    let target = document.elementFromPoint(touch.clientX, touch.clientY)
+                    if (target && target.classList.contains('apple') && !selectedApples.includes(target)) {
+                        selectApple(target)
+                    }
+                }
+                apple.ontouchend = () => {
+                    isMouseDown = false
+                    checkMatch()
+                }
+
+                board.appendChild(apple)
+            }
+
+            function selectApple(apple) {
+                if (!gameActive) return
+                if (!selectedApples.includes(apple)) {
+                    apple.classList.add('selected')
+                    selectedApples.push(apple)
+                }
+            }
+
+            function applySpecialEffect(apple) {
+                let apples = document.querySelectorAll('.apple')
+                let index = Array.from(apples).indexOf(apple)
+                let row = Math.floor(index / COLS)
+                let col = index % COLS
+
+                for (let r = row - 1; r <= row + 1; r++) {
+                    for (let c = col - 1; c <= col + 1; c++) {
+                        if (r >= 0 && r < ROWS && c >= 0 && c < COLS) {
+                            let neighborIndex = r * COLS + c
+                            let neighborApple = apples[neighborIndex]
+                            if (neighborApple && !neighborApple.classList.contains('hidden')) {
+                                neighborApple.textContent = getRandomNumber()
+                            }
+                        }
+                    }
+                }
+                apple.classList.add('hidden')
+                selectedApples = selectedApples.filter((a) => a !== apple) // 선택 리스트에서도 제거
+            }
+
+            function checkMatch() {
+                let sum = selectedApples.reduce((acc, apple) => acc + parseInt(apple.textContent), 0)
+
+                if (sum === 10) {
+                    selectedApples.forEach((apple) => {
+                        if (apple.classList.contains('special')) {
+                            applySpecialEffect(apple)
+                        }
+                        apple.classList.add('hidden')
+                    })
+                    score += 10
+                    scoreDisplay.textContent = `점수: ${score}`
+                }
+
+                selectedApples.forEach((a) => a.classList.remove('selected'))
+                selectedApples = []
+            }
+
+            function startGame() {
+                let timer = setInterval(() => {
+                    if (time > 0) {
+                        time--
+                        timeDisplay.textContent = time
+                    } else {
+                        clearInterval(timer)
+                        gameActive = false
+                        alert('게임 종료! 최종 점수: ' + score)
+                    }
+                }, 1000)
+                for (let i = 0; i < ROWS * COLS; i++) {
+                    createApple()
+                }
+            }
+
+            document.body.onmouseup = () => {
+                isMouseDown = false
+                checkMatch()
+            }
+            startGame()
+        </script>
+    </body>
+</html>
