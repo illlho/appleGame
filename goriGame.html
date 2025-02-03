@@ -74,8 +74,18 @@
     let deviceTilt = 0;
     let timerInterval;
 
-    const leftPole = { x: canvas.width * 0.3, y: canvas.height * 0.7, radius: 15 };
-    const rightPole = { x: canvas.width * 0.7, y: canvas.height * 0.7, radius: 15 };
+    const poles = [];
+const poleCount = 10;
+const poleSpacing = canvas.width / (poleCount + 1);
+const poleY = canvas.height * 0.7;
+
+for (let i = 0; i < poleCount; i++) {
+    poles.push({ x: (i + 1) * poleSpacing, y: poleY, radius: 15 });
+}
+
+let targetPole = poles[Math.floor(Math.random() * poles.length)];
+
+
     
     class Ring {
         constructor() {
@@ -114,11 +124,25 @@
     }
 
     function checkCollision(pole) {
-        const dx = ring.x - pole.x;
-        const dy = ring.y - pole.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        return distance < ring.radius + pole.radius;
-    }
+    const dx = ring.x - pole.x;
+    const dy = ring.y - pole.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    return distance < ring.radius + pole.radius;
+}
+
+for (let i = 0; i < poles.length; i++) {
+    ctx.fillStyle = poles[i] === targetPole ? "green" : "red"; // 목표 기둥은 녹색으로 표시
+    ctx.beginPath();
+    ctx.arc(poles[i].x, poles[i].y, poles[i].radius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.closePath();
+}
+
+if (checkCollision(targetPole)) {
+    score += 10;
+    ring = null;
+    targetPole = poles[Math.floor(Math.random() * poles.length)]; // 다음 목표 기둥 랜덤 지정
+}
 
     function updateGame() {
         if (!isGameRunning) return;
