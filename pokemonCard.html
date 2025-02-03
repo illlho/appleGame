@@ -26,9 +26,10 @@
                 border-radius: 15px;
                 box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
                 transform-style: preserve-3d;
-                transition: transform 0.1s ease-out;
+                transition: transform 0.3s ease-out;
                 position: relative;
                 overflow: hidden;
+                transform: rotateY(0deg);
             }
             .holo-overlay {
                 position: absolute;
@@ -54,7 +55,7 @@
             <a href="index.html" class="text-2xl font-bold text-gray-900 hover:text-blue-600 transition">ilho</a>
         </header>
         <div class="card-container">
-            <div class="card">
+            <div class="card" id="pokemonCard">
                 <div class="holo-overlay"></div>
                 <div class="holo-effect"></div>
             </div>
@@ -66,49 +67,62 @@
             let startX, startY
             let rotateX = 0,
                 rotateY = 0
+            let flipped = false
+            let touchStartTime = 0
 
             function startDrag(e) {
+                if (flipped) return
                 isDragging = true
                 startX = e.touches ? e.touches[0].clientX : e.clientX
                 startY = e.touches ? e.touches[0].clientY : e.clientY
-
-                e.preventDefault() // 기본 이벤트 방지
+                e.preventDefault()
+                touchStartTime = Date.now()
             }
 
             function onDrag(e) {
-                if (!isDragging) return
-
+                if (!isDragging || flipped) return
                 let clientX = e.touches ? e.touches[0].clientX : e.clientX
                 let clientY = e.touches ? e.touches[0].clientY : e.clientY
                 let dx = clientX - startX
                 let dy = clientY - startY
-
                 rotateY = dx / 5
                 rotateX = -dy / 5
-
                 requestAnimationFrame(updateCard)
             }
 
-            function stopDrag() {
-                isDragging = false
-                rotateX = 0
-                rotateY = 0
-                requestAnimationFrame(updateCard)
+            function stopDrag(e) {
+                if (!flipped) {
+                    isDragging = false
+                    rotateX = 0
+                    rotateY = 0
+                    requestAnimationFrame(updateCard)
+                }
+
+                if (!flipped && Date.now() - touchStartTime < 100) {
+                    flipCard()
+                }
             }
 
             function updateCard() {
-                card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`
+                card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) ${
+                    flipped ? 'rotateY(180deg)' : ''
+                }`
                 holoEffect.style.background = `radial-gradient(circle at ${50 + rotateY}% ${
                     50 + rotateX
                 }%, rgba(255, 255, 255, 10.0), transparent 60%)`
             }
 
-            // 전체 문서에서 마우스 이벤트 감지하여 카드 회전 유지
+            function flipCard() {
+                flipped = !flipped
+                card.style.transform = flipped ? 'rotateY(180deg)' : 'rotateY(0deg)'
+            }
+
+            card.addEventListener('click', flipCard)
             document.addEventListener('mousedown', startDrag)
             document.addEventListener('mousemove', onDrag)
             document.addEventListener('mouseup', stopDrag)
 
-            document.addEventListener('touchstart', startDrag, { passive: false })
+            card.addEventListener('touchstart', startDrag, { passive: false })
             document.addEventListener('touchmove', onDrag, { passive: false })
             document.addEventListener('touchend', stopDrag)
         </script>
