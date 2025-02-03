@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>강화된 탑다운 슈팅 게임</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: black;
+        }
+        canvas {
+            display: block;
+            background-color: #222;
+        }
+        #scoreBoard {
+            position: absolute;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 24px;
+            font-family: Arial, sans-serif;
+        }
+        /* 헤더 스타일 */
+        header {
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            padding: 1rem 0;
+            font-size: 1.5rem;
+            font-weight: bold;
+            z-index: 10;
+margin-bottom:20px;
+        }
+        header a {
+            text-decoration: none;
+            color: black;
+            transition: color 0.3s;
+        }
+        header a:hover {
+            color: #2563eb;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <a href="index.html">ilho</a>
+    </header>
+
+    <div id="scoreBoard">점수: <span id="score">0</span></div>
+    <canvas id="gameCanvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let score = 0;
+        let gameOver = false;
+
+        class Player {
+            constructor() {
+                this.x = canvas.width / 2;
+                this.y = canvas.height - 60;
+                this.width = 40;
+                this.height = 40;
+                this.color = "lime";
+            }
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.fillRect(this.x, this.y, this.width, this.height);
+            }
+            move(targetX) {
+                this.x = targetX - this.width / 2;
+                if (this.x < 0) this.x = 0;
+                if (this.x + this.width > canvas.width) this.x = canvas.width - this.width;
+            }
+        }
+
+        class Bullet {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.width = 5;
+                this.height = 10;
+                this.color = "yellow";
+                this.speed = 7;
+            }
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.fillRect(this.x, this.y, this.width, this.height);
+            }
+            update() {
+                this.y -= this.speed;
+            }
+        }
+
+        class Enemy {
+            constructor() {
+                this.x = Math.random() * (canvas.width - 40);
+                this.y = -40;
+                this.width = 40;
+                this.height = 40;
+                this.color = "red";
+                this.speed = 2;
+            }
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.fillRect(this.x, this.y, this.width, this.height);
+            }
+            update() {
+                this.y += this.speed;
+            }
+        }
+
+        const player = new Player();
+        const bullets = [];
+        const enemies = [];
+
+        function spawnEnemy() {
+            if (!gameOver) {
+                enemies.push(new Enemy());
+                setTimeout(spawnEnemy, 1000);
+            }
+        }
+
+        function updateScore() {
+            document.getElementById("score").textContent = score;
+        }
+
+        function gameLoop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            player.draw();
+
+            bullets.forEach((bullet, index) => {
+                bullet.update();
+                bullet.draw();
+                if (bullet.y < 0) bullets.splice(index, 1);
+            });
+
+            enemies.forEach((enemy, eIndex) => {
+                enemy.update();
+                enemy.draw();
+                if (enemy.y > canvas.height) {
+                    gameOver = true;
+                    alert("게임 오버!");
+                    location.reload();
+                }
+                bullets.forEach((bullet, bIndex) => {
+                    if (
+                        bullet.x < enemy.x + enemy.width &&
+                        bullet.x + bullet.width > enemy.x &&
+                        bullet.y < enemy.y + enemy.height &&
+                        bullet.y + bullet.height > enemy.y
+                    ) {
+                        bullets.splice(bIndex, 1);
+                        enemies.splice(eIndex, 1);
+                        score += 10;
+                        updateScore();
+                    }
+                });
+            });
+
+            if (!gameOver) requestAnimationFrame(gameLoop);
+        }
+
+        canvas.addEventListener("touchmove", (event) => {
+            event.preventDefault();
+            const touch = event.touches[0];
+            player.move(touch.clientX);
+        });
+
+        setInterval(() => {
+            bullets.push(new Bullet(player.x + player.width / 2 - 2.5, player.y));
+        }, 300);
+
+        spawnEnemy();
+        gameLoop();
+    </script>
+</body>
+</html>
