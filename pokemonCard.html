@@ -50,7 +50,6 @@
         </style>
     </head>
     <body>
-        <!-- Header -->
         <header class="bg-white shadow-md py-4 fixed top-0 left-0 w-full text-center">
             <a href="index.html" class="text-2xl font-bold text-gray-900 hover:text-blue-600 transition">ilho</a>
         </header>
@@ -65,40 +64,52 @@
             const holoEffect = document.querySelector('.holo-effect')
             let isDragging = false
             let startX, startY
+            let rotateX = 0,
+                rotateY = 0
 
             function startDrag(e) {
                 isDragging = true
                 startX = e.touches ? e.touches[0].clientX : e.clientX
                 startY = e.touches ? e.touches[0].clientY : e.clientY
+
+                e.preventDefault() // 기본 이벤트 방지
             }
 
             function onDrag(e) {
                 if (!isDragging) return
+
                 let clientX = e.touches ? e.touches[0].clientX : e.clientX
                 let clientY = e.touches ? e.touches[0].clientY : e.clientY
                 let dx = clientX - startX
                 let dy = clientY - startY
-                let rotateY = dx / 5
-                let rotateX = -dy / 5
-                card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`
-                holoEffect.style.background = `radial-gradient(circle at ${50 + dx / 5}% ${
-                    50 + dy / 5
-                }%, rgba(255, 255, 255, 10.0), transparent 60%)`
+
+                rotateY = dx / 5
+                rotateX = -dy / 5
+
+                requestAnimationFrame(updateCard)
             }
 
             function stopDrag() {
                 isDragging = false
-                card.style.transform = 'rotateX(0deg) rotateY(0deg)'
-                holoEffect.style.background =
-                    'radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 10.0), transparent 60%)'
+                rotateX = 0
+                rotateY = 0
+                requestAnimationFrame(updateCard)
             }
 
+            function updateCard() {
+                card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`
+                holoEffect.style.background = `radial-gradient(circle at ${50 + rotateY}% ${
+                    50 + rotateX
+                }%, rgba(255, 255, 255, 10.0), transparent 60%)`
+            }
+
+            // 전체 문서에서 마우스 이벤트 감지하여 카드 회전 유지
             document.addEventListener('mousedown', startDrag)
             document.addEventListener('mousemove', onDrag)
             document.addEventListener('mouseup', stopDrag)
 
-            document.addEventListener('touchstart', startDrag)
-            document.addEventListener('touchmove', onDrag)
+            document.addEventListener('touchstart', startDrag, { passive: false })
+            document.addEventListener('touchmove', onDrag, { passive: false })
             document.addEventListener('touchend', stopDrag)
         </script>
     </body>
