@@ -65,7 +65,7 @@
                 border: 2px solid blue;
                 background-color: lightblue;
             }
-            .hidden {
+            .hidden1 {
                 visibility: hidden;
             }
 
@@ -73,23 +73,6 @@
             #timer {
                 font-size: 20px;
                 margin: 10px;
-            }
-            #header {
-                position: absolute;
-                top: 10px;
-                left: 10px;
-                right: 10px;
-                display: flex;
-                justify-content: space-between;
-                font-size: 12px;
-                color: #ddd;
-                font-weight: bold;
-            }
-            #logo {
-                text-align: left;
-            }
-            #version {
-                text-align: right;
             }
         </style>
     </head>
@@ -189,13 +172,13 @@
                         if (r >= 0 && r < ROWS && c >= 0 && c < COLS) {
                             let neighborIndex = r * COLS + c
                             let neighborApple = apples[neighborIndex]
-                            if (neighborApple && !neighborApple.classList.contains('hidden')) {
+                            if (neighborApple && !neighborApple.classList.contains('hidden1')) {
                                 neighborApple.textContent = getRandomNumber()
                             }
                         }
                     }
                 }
-                apple.classList.add('hidden')
+                apple.classList.add('hidden1')
                 selectedApples = selectedApples.filter((a) => a !== apple) // 선택 리스트에서도 제거
             }
 
@@ -207,7 +190,7 @@
                         if (apple.classList.contains('special')) {
                             applySpecialEffect(apple)
                         }
-                        apple.classList.add('hidden')
+                        apple.classList.add('hidden1')
                     })
                     score += 10
                     scoreDisplay.textContent = `점수: ${score}`
