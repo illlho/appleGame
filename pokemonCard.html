@@ -7,6 +7,7 @@
     <title>포켓몬 카드</title>
     <style>
         body {
+            overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -64,27 +65,37 @@
         let isDragging = false;
         let startX, startY;
 
-        document.addEventListener('mousedown', (e) => {
+        function startDrag(e) {
             isDragging = true;
-            startX = e.clientX;
-            startY = e.clientY;
-        });
+            startX = e.touches ? e.touches[0].clientX : e.clientX;
+            startY = e.touches ? e.touches[0].clientY : e.clientY;
+        }
 
-        document.addEventListener('mousemove', (e) => {
+        function onDrag(e) {
             if (!isDragging) return;
-            let dx = e.clientX - startX;
-            let dy = e.clientY - startY;
+            let clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            let clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            let dx = clientX - startX;
+            let dy = clientY - startY;
             let rotateY = dx / 5;
             let rotateX = -dy / 5;
             card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
             holoEffect.style.background = `radial-gradient(circle at ${50 + dx / 5}% ${50 + dy / 5}%, rgba(255, 255, 255, 10.0), transparent 60%)`;
-        });
+        }
 
-        document.addEventListener('mouseup', () => {
+        function stopDrag() {
             isDragging = false;
             card.style.transform = 'rotateX(0deg) rotateY(0deg)';
             holoEffect.style.background = 'radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 10.0), transparent 60%)';
-        });
+        }
+
+        document.addEventListener('mousedown', startDrag);
+        document.addEventListener('mousemove', onDrag);
+        document.addEventListener('mouseup', stopDrag);
+        
+        document.addEventListener('touchstart', startDrag);
+        document.addEventListener('touchmove', onDrag);
+        document.addEventListener('touchend', stopDrag);
     </script>
 </body>
 </html>
