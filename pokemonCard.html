@@ -1,101 +1,105 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <title>포켓몬 카드</title>
-    <style>
-        body {
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f4f4f4;
-            margin: 0;
-        }
-        .card-container {
-            perspective: 1000px;
-        }
-        .card {
-            width: 250px;
-            height: 350px;
-            background: url('https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/SMP/SMP_EN_SM113.png') no-repeat center/cover;
-            border-radius: 15px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-            transform-style: preserve-3d;
-            transition: transform 0.1s ease-out;
-            position: relative;
-            overflow: hidden;
-        }
-        .holo-overlay {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0) 10px);
-            mix-blend-mode: overlay;
-            pointer-events: none;
-        }
-        .holo-effect {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 10.0), transparent 60%);
-            mix-blend-mode: overlay;
-            transition: background-position 0.1s ease-out;
-            pointer-events: none;
-        }
-    </style>
-</head>
-<body>
-    <!-- Header -->
-    <header class="bg-white shadow-md py-4 fixed top-0 left-0 w-full text-center">
-        <a href="index.html" class="text-2xl font-bold text-gray-900 hover:text-blue-600 transition">ilho</a>
-    </header>
-    <div class="card-container">
-        <div class="card">
-            <div class="holo-overlay"></div>
-            <div class="holo-effect"></div>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <script src="https://cdn.tailwindcss.com"></script>
+        <title>포켓몬 카드</title>
+        <style>
+            body {
+                overflow: hidden;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                background-color: #f4f4f4;
+                margin: 0;
+            }
+            .card-container {
+                perspective: 1000px;
+            }
+            .card {
+                width: 250px;
+                height: 350px;
+                background: url('https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/SMP/SMP_EN_SM113.png')
+                    no-repeat center/cover;
+                border-radius: 15px;
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+                transform-style: preserve-3d;
+                transition: transform 0.1s ease-out;
+                position: relative;
+                overflow: hidden;
+            }
+            .holo-overlay {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                background: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0) 10px);
+                mix-blend-mode: overlay;
+                pointer-events: none;
+            }
+            .holo-effect {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 10), transparent 60%);
+                mix-blend-mode: overlay;
+                transition: background-position 0.1s ease-out;
+                pointer-events: none;
+            }
+        </style>
+    </head>
+    <body>
+        <!-- Header -->
+        <header class="bg-white shadow-md py-4 fixed top-0 left-0 w-full text-center">
+            <a href="index.html" class="text-2xl font-bold text-gray-900 hover:text-blue-600 transition">ilho</a>
+        </header>
+        <div class="card-container">
+            <div class="card">
+                <div class="holo-overlay"></div>
+                <div class="holo-effect"></div>
+            </div>
         </div>
-    </div>
-    <script>
-        const card = document.querySelector('.card');
-        const holoEffect = document.querySelector('.holo-effect');
-        let isDragging = false;
-        let startX, startY;
+        <script>
+            const card = document.querySelector('.card')
+            const holoEffect = document.querySelector('.holo-effect')
+            let isDragging = false
+            let startX, startY
 
-        function startDrag(e) {
-            isDragging = true;
-            startX = e.touches ? e.touches[0].clientX : e.clientX;
-            startY = e.touches ? e.touches[0].clientY : e.clientY;
-        }
+            function startDrag(e) {
+                isDragging = true
+                startX = e.touches ? e.touches[0].clientX : e.clientX
+                startY = e.touches ? e.touches[0].clientY : e.clientY
+            }
 
-        function onDrag(e) {
-            if (!isDragging) return;
-            let clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            let clientY = e.touches ? e.touches[0].clientY : e.clientY;
-            let dx = clientX - startX;
-            let dy = clientY - startY;
-            let rotateY = dx / 5;
-            let rotateX = -dy / 5;
-            card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-            holoEffect.style.background = `radial-gradient(circle at ${50 + dx / 5}% ${50 + dy / 5}%, rgba(255, 255, 255, 10.0), transparent 60%)`;
-        }
+            function onDrag(e) {
+                if (!isDragging) return
+                let clientX = e.touches ? e.touches[0].clientX : e.clientX
+                let clientY = e.touches ? e.touches[0].clientY : e.clientY
+                let dx = clientX - startX
+                let dy = clientY - startY
+                let rotateY = dx / 5
+                let rotateX = -dy / 5
+                card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`
+                holoEffect.style.background = `radial-gradient(circle at ${50 + dx / 5}% ${
+                    50 + dy / 5
+                }%, rgba(255, 255, 255, 10.0), transparent 60%)`
+            }
 
-        function stopDrag() {
-            isDragging = false;
-            card.style.transform = 'rotateX(0deg) rotateY(0deg)';
-            holoEffect.style.background = 'radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 10.0), transparent 60%)';
-        }
+            function stopDrag() {
+                isDragging = false
+                card.style.transform = 'rotateX(0deg) rotateY(0deg)'
+                holoEffect.style.background =
+                    'radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 10.0), transparent 60%)'
+            }
 
-        document.addEventListener('mousedown', startDrag);
-        document.addEventListener('mousemove', onDrag);
-        document.addEventListener('mouseup', stopDrag);
-        
-        document.addEventListener('touchstart', startDrag);
-        document.addEventListener('touchmove', onDrag);
-        document.addEventListener('touchend', stopDrag);
-    </script>
-</body>
+            document.addEventListener('mousedown', startDrag)
+            document.addEventListener('mousemove', onDrag)
+            document.addEventListener('mouseup', stopDrag)
+
+            document.addEventListener('touchstart', startDrag)
+            document.addEventListener('touchmove', onDrag)
+            document.addEventListener('touchend', stopDrag)
+        </script>
+    </body>
 </html>
