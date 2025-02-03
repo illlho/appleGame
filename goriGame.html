@@ -18,9 +18,21 @@
             display: block;
             margin: auto;
         }
-        #scoreboard {
+        #scoreboard, #timer {
+            position: absolute;
+            top: 10px;
             font-size: 24px;
-            margin-top: 10px;
+            font-weight: bold;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+        }
+        #scoreboard {
+            left: 10px;
+        }
+        #timer {
+            right: 10px;
         }
         #startButton {
             position: absolute;
@@ -44,6 +56,7 @@
     </header>
 <canvas id="gameCanvas"></canvas>
 <div id="scoreboard">점수: 0</div>
+<div id="timer">시간: 30초</div>
 <button id="startButton">고리 발사</button>
 
 <script>
@@ -54,13 +67,13 @@
 
     let score = 0;
     let ring = null;
-    let ringSpeed = -18; // 더 빠르게 올라가도록 설정
+    let ringSpeed = -18;
     let gravity = 0.6;
     let isGameRunning = false;
     let gameTime = 30;
     let deviceTilt = 0;
+    let timerInterval;
 
-    // 기둥 위치 및 크기 조정 (중앙보다 아래, 절반 크기)
     const leftPole = { x: canvas.width * 0.3, y: canvas.height * 0.7, radius: 15 };
     const rightPole = { x: canvas.width * 0.7, y: canvas.height * 0.7, radius: 15 };
     
@@ -70,16 +83,16 @@
             this.y = canvas.height - 100;
             this.radius = 20;
             this.vy = ringSpeed;
+            this.scored = false;
         }
         update() {
             this.x += deviceTilt * 2;
             this.y += this.vy;
 
-            // 최상단까지 올라갔다가 떨어지기 시작
             if (this.y <= 0) {
-                this.vy = 0; // 잠시 멈춘 후
+                this.vy = 0;
                 setTimeout(() => {
-                    this.vy = gravity; // 떨어지는 속도로 전환
+                    this.vy = gravity;
                 }, 100);
             } else {
                 this.vy += gravity;
@@ -128,9 +141,9 @@
             ring.update();
             ring.draw();
             
-            if (checkCollision(leftPole) || checkCollision(rightPole)) {
+            if ((checkCollision(leftPole) || checkCollision(rightPole)) && !ring.scored) {
                 score += 10;
-                ring = null;
+                ring.scored = true;
             } else if (ring.y > canvas.height) {
                 ring = null;
             }
@@ -141,11 +154,14 @@
     }
 
     function startTimer() {
-        let timer = setInterval(() => {
+        timerInterval = setInterval(() => {
             gameTime--;
+            document.getElementById("timer").innerText = `시간: ${gameTime}초`;
             if (gameTime <= 0) {
-                clearInterval(timer);
+                clearInterval(timerInterval);
                 isGameRunning = false;
+                document.getElementById("startButton").innerText = "다시하기";
+                document.getElementById("startButton").onclick = () => location.reload();
                 alert(`게임 종료! 최종 점수: ${score}`);
             }
         }, 1000);
@@ -156,6 +172,8 @@
             isGameRunning = true;
             gameTime = 30;
             score = 0;
+            document.getElementById("timer").innerText = `시간: 30초`;
+            document.getElementById("startButton").innerText = "고리 발사";
             startTimer();
             updateGame();
         }
