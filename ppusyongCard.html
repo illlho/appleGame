@@ -41,7 +41,7 @@
             position: absolute;
             width: 100%;
             height: 100%;
-            background: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 10.0), transparent 60%);
+            background: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 10.0), transparent 30%);
             mix-blend-mode: overlay;
             transition: background-position 0.1s ease-out;
             pointer-events: none;
@@ -80,13 +80,13 @@
             let rotateY = dx / 5;
             let rotateX = -dy / 5;
             card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-            holoEffect.style.background = `radial-gradient(circle at ${50 + dx / 5}% ${50 + dy / 5}%, rgba(255, 255, 255, 10.0), transparent 60%)`;
+            holoEffect.style.background = `radial-gradient(circle at ${20 + dx / 5}% ${20 + dy / 5}%, rgba(255, 255, 255, 10.0), transparent 30%)`;
         }
 
         function stopDrag() {
             isDragging = false;
             card.style.transform = 'rotateX(0deg) rotateY(0deg)';
-            holoEffect.style.background = 'radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 10.0), transparent 60%)';
+            holoEffect.style.background = 'radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 10.0), transparent 30%)';
         }
 
         document.addEventListener('mousedown', startDrag);
