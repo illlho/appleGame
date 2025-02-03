@@ -80,6 +80,14 @@
             <!-- Header -->
     <header class="bg-white shadow-md py-4 fixed top-0 left-0 w-full text-center">
         <a href="index.html" class="text-2xl font-bold text-gray-900 hover:text-blue-600 transition">ilho</a>
+<button id="refreshButton"
+        class="px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md 
+               hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 
+               transition duration-200">
+        다시하기
+    </button>
+
+    
     </header>
         <div id="game-container">
             <h1>사과 숫자 게임</h1>
@@ -181,6 +189,9 @@
                 apple.classList.add('hidden1')
                 selectedApples = selectedApples.filter((a) => a !== apple) // 선택 리스트에서도 제거
             }
+        document.getElementById("refreshButton").addEventListener("click", function () {
+            location.reload();
+        });
 
             function checkMatch() {
                 let sum = selectedApples.reduce((acc, apple) => acc + parseInt(apple.textContent), 0)
