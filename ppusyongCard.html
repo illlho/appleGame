@@ -83,10 +83,6 @@
 
             holoEffect.style.background = `radial-gradient(circle at ${20 + dx / 5}% ${20 + dy / 5}%, rgba(255, 255, 255, 10.0), transparent 45%)`;
 
-
-let radius = 60 + Math.sqrt(dx * dx + dy * dy) / 5; // 드래그할수록 반사광이 확대됨
-holoEffect.style.background = `radial-gradient(circle at ${50 + dx / 5}% ${50 + dy / 5}%, rgba(255, 255, 255, 10.0), transparent ${radius}%)`;
-
         }
 
         function stopDrag() {
