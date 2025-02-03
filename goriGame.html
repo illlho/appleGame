@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>자이로 고리 게임</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            text-align: center;
+            background: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+        canvas {
+            background: #a0c4ff;
+            display: block;
+            margin: auto;
+        }
+        #scoreboard {
+            font-size: 24px;
+            margin-top: 10px;
+        }
+        #startButton {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 20px;
+            padding: 10px 20px;
+            background: #ff595e;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="bg-white shadow-md py-4 fixed top-0 left-0 w-full text-center">
+        <a href="index.html" class="text-2xl font-bold text-gray-900 hover:text-blue-600 transition">ilho</a>
+    </header>
+<canvas id="gameCanvas"></canvas>
+<div id="scoreboard">점수: 0</div>
+<button id="startButton">고리 발사</button>
+
+<script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let score = 0;
+    let ring = null;
+    let ringSpeed = -18; // 더 빠르게 올라가도록 설정
+    let gravity = 0.6;
+    let isGameRunning = false;
+    let gameTime = 30;
+    let deviceTilt = 0;
+
+    // 기둥 위치 및 크기 조정 (중앙보다 아래, 절반 크기)
+    const leftPole = { x: canvas.width * 0.3, y: canvas.height * 0.7, radius: 15 };
+    const rightPole = { x: canvas.width * 0.7, y: canvas.height * 0.7, radius: 15 };
+    
+    class Ring {
+        constructor() {
+            this.x = canvas.width / 2;
+            this.y = canvas.height - 100;
+            this.radius = 20;
+            this.vy = ringSpeed;
+        }
+        update() {
+            this.x += deviceTilt * 2;
+            this.y += this.vy;
+
+            // 최상단까지 올라갔다가 떨어지기 시작
+            if (this.y <= 0) {
+                this.vy = 0; // 잠시 멈춘 후
+                setTimeout(() => {
+                    this.vy = gravity; // 떨어지는 속도로 전환
+                }, 100);
+            } else {
+                this.vy += gravity;
+            }
+        }
+        draw() {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+            ctx.strokeStyle = "white";
+            ctx.lineWidth = 5;
+            ctx.stroke();
+            ctx.closePath();
+        }
+    }
+
+    function startGame() {
+        if (ring) return;
+        ring = new Ring();
+    }
+
+    function checkCollision(pole) {
+        const dx = ring.x - pole.x;
+        const dy = ring.y - pole.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        return distance < ring.radius + pole.radius;
+    }
+
+    function updateGame() {
+        if (!isGameRunning) return;
+        
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // 기둥 그리기
+        ctx.fillStyle = "red";
+        ctx.beginPath();
+        ctx.arc(leftPole.x, leftPole.y, leftPole.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.closePath();
+
+        ctx.beginPath();
+        ctx.arc(rightPole.x, rightPole.y, rightPole.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.closePath();
+
+        if (ring) {
+            ring.update();
+            ring.draw();
+            
+            if (checkCollision(leftPole) || checkCollision(rightPole)) {
+                score += 10;
+                ring = null;
+            } else if (ring.y > canvas.height) {
+                ring = null;
+            }
+        }
+
+        document.getElementById("scoreboard").innerText = `점수: ${score}`;
+        requestAnimationFrame(updateGame);
+    }
+
+    function startTimer() {
+        let timer = setInterval(() => {
+            gameTime--;
+            if (gameTime <= 0) {
+                clearInterval(timer);
+                isGameRunning = false;
+                alert(`게임 종료! 최종 점수: ${score}`);
+            }
+        }, 1000);
+    }
+
+    document.getElementById("startButton").addEventListener("click", () => {
+        if (!isGameRunning) {
+            isGameRunning = true;
+            gameTime = 30;
+            score = 0;
+            startTimer();
+            updateGame();
+        }
+        startGame();
+    });
+
+    window.addEventListener("deviceorientation", (event) => {
+        deviceTilt = event.gamma / 5;
+    });
+
+</script>
+
+</body>
+</html>
